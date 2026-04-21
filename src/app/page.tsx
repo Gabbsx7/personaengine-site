@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import Link from "next/link";
 import TopNav from "../components/TopNav";
 import Footer from "../components/Footer";
 
@@ -37,6 +36,7 @@ function TerminalLog() {
       }, line.delay * 1000);
       return () => clearTimeout(t);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -100,7 +100,7 @@ function TerminalLog() {
 }
 
 /* ─── ANIMATED COUNTER ─── */
-function Counter({ target, suffix = "", prefix = "" }: { target: number; suffix?: string; prefix?: string }) {
+/* function Counter({ target, suffix = "", prefix = "" }: { target: number; suffix?: string; prefix?: string }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
   const started = useRef(false);
@@ -133,7 +133,7 @@ function Counter({ target, suffix = "", prefix = "" }: { target: number; suffix?
       {prefix}{count}{suffix}
     </span>
   );
-}
+} */
 
 /* ─── MAIN PAGE ─── */
 export default function OutboundMachineLanding() {
@@ -261,7 +261,7 @@ export default function OutboundMachineLanding() {
   };
 
   const gold = "#F5A623";
-  const goldDim = "#c4851c";
+  // const goldDim = "#c4851c"; // Unused
   const bg = "#0a0a0a";
   const surface = "#111111";
   const surface2 = "#161616";
@@ -559,8 +559,8 @@ export default function OutboundMachineLanding() {
               lineHeight: 1.6,
             }}
           >
-            "A vantagem competitiva não é o produto.
-            <br />É quem descobre o cliente certo, na hora certa."
+            &quot;A vantagem competitiva não é o produto.
+            <br />É quem descobre o cliente certo, na hora certa.&quot;
           </motion.blockquote>
         </div>
       </section>
@@ -682,7 +682,6 @@ export default function OutboundMachineLanding() {
                   style={{
                     color: activeStep === i ? gold : muted,
                     fontSize: "20px",
-                    transition: "color 0.2s",
                     transform: activeStep === i ? "rotate(180deg)" : "rotate(0)",
                     transition: "all 0.2s",
                   }}
