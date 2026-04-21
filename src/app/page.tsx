@@ -1,71 +1,144 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { 
-  ChevronDown, 
-  CheckCircle, 
-  Users,
-  TrendingUp,
-  Target,
-  Star,
-  Zap,
-  Brain,
-  Rocket,
-  Crown,
-  Lock,
-  Gift
-} from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import TopNav from "../components/TopNav";
 import Footer from "../components/Footer";
 
-/* -------------------------------- Button */
-function Button({ 
-  children, 
-  variant = "primary", 
-  size = "md", 
-  href,
-  ...props 
-}: { 
-  children: React.ReactNode;
-  variant?: "primary" | "outline"; 
-  size?: "sm" | "md" | "lg";
-  href?: string;
-} & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'href'>) {
-  const base = "inline-flex items-center justify-center rounded-2xl font-semibold transition-all duration-200 focus:outline-none shadow-md hover:scale-[1.03] active:scale-95";
-  const sizes: Record<string, string> = {
-    sm: "px-4 py-2 text-sm",
-    md: "px-6 py-3 text-base",
-    lg: "px-8 py-4 text-lg",
-  };
-  const variants: Record<string, string> = {
-    primary: "bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 text-black hover:from-yellow-300 hover:to-yellow-500",
-    outline: "border-2 border-yellow-400 text-yellow-400 bg-transparent hover:bg-yellow-400 hover:text-black",
-  };
-  const className = `${base} ${sizes[size]} ${variants[variant]}`;
+/* ─── TYPES ─── */
+interface NavItem {
+  id: string;
+  label: string;
+  onClick: () => void;
+}
 
-  if (href) {
-    return (
-      <Link href={href} className={className} {...(props as Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'>)}>
-        {children}
-      </Link>
-    );
-  }
+/* ─── TERMINAL LOG ANIMATION ─── */
+function TerminalLog() {
+  const lines = [
+    { text: "→ inicializando persona_engine v2.1", color: "#6b7280", delay: 0 },
+    { text: "✓ ICP carregado · 847 empresas no funil", color: "#f59e0b", delay: 0.4 },
+    { text: "✓ Lead identificado: TechCorp Ltda", color: "#f59e0b", delay: 0.9 },
+    { text: "  score_fit: 91/100 · sinal: expansão latam", color: "#9ca3af", delay: 1.2 },
+    { text: "✓ Enriquecimento concluído · dor mapeada", color: "#f59e0b", delay: 1.7 },
+    { text: "✓ Abordagem gerada · WhatsApp · tom: consultivo", color: "#f59e0b", delay: 2.3 },
+    { text: "✓ Resposta recebida · status: interessado", color: "#34d399", delay: 3.0 },
+    { text: "→ BANT score: 78 · urgência detectada", color: "#9ca3af", delay: 3.5 },
+    { text: "✓ Reunião agendada · Gabriel notificado", color: "#34d399", delay: 4.1 },
+    { text: "✓ CRM atualizado · pipeline +R$24k", color: "#34d399", delay: 4.6 },
+  ];
+
+  const [visible, setVisible] = useState<number[]>([]);
+
+  useEffect(() => {
+    lines.forEach((line, i) => {
+      const t = setTimeout(() => {
+        setVisible(prev => [...prev, i]);
+      }, line.delay * 1000);
+      return () => clearTimeout(t);
+    });
+  }, []);
 
   return (
-    <button className={className} {...props}>
-      {children}
-    </button>
+    <div
+      style={{
+        background: "#0d0d0d",
+        border: "1px solid #1f1f1f",
+        borderRadius: "12px",
+        padding: "20px 24px",
+        fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+        fontSize: "13px",
+        lineHeight: "1.8",
+        minHeight: "280px",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Window dots */}
+      <div style={{ display: "flex", gap: "6px", marginBottom: "16px" }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ff5f57" }} />
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#febc2e" }} />
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#28c840" }} />
+        <span style={{ marginLeft: "auto", color: "#4b5563", fontSize: "11px" }}>outbound-machine.log</span>
+      </div>
+
+      {lines.map((line, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, x: -8 }}
+          animate={visible.includes(i) ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 0.25 }}
+          style={{ color: line.color, whiteSpace: "pre" }}
+        >
+          {line.text}
+        </motion.div>
+      ))}
+
+      {/* Blinking cursor */}
+      <motion.span
+        animate={{ opacity: [1, 0, 1] }}
+        transition={{ duration: 1, repeat: Infinity }}
+        style={{ color: "#f59e0b", display: "inline-block" }}
+      >
+        ▌
+      </motion.span>
+
+      {/* Subtle glow */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: "80px",
+          background: "linear-gradient(to top, #0d0d0d, transparent)",
+          pointerEvents: "none",
+        }}
+      />
+    </div>
   );
 }
 
-/* -------------------------------- Main Component */
-export default function PersonaEngineLanding() {
-  const [openStep, setOpenStep] = useState<number | null>(null);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+/* ─── ANIMATED COUNTER ─── */
+function Counter({ target, suffix = "", prefix = "" }: { target: number; suffix?: string; prefix?: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started.current) {
+        started.current = true;
+        const duration = 1500;
+        const steps = 50;
+        const increment = target / steps;
+        let current = 0;
+        const timer = setInterval(() => {
+          current += increment;
+          if (current >= target) {
+            setCount(target);
+            clearInterval(timer);
+          } else {
+            setCount(Math.floor(current));
+          }
+        }, duration / steps);
+      }
+    });
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [target]);
+
+  return (
+    <span ref={ref}>
+      {prefix}{count}{suffix}
+    </span>
+  );
+}
+
+/* ─── MAIN PAGE ─── */
+export default function OutboundMachineLanding() {
   const [isVisible, setIsVisible] = useState(false);
-  
+  const [activeStep, setActiveStep] = useState<number | null>(null);
   const { scrollYProgress } = useScroll();
   const progressWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
@@ -77,539 +150,1273 @@ export default function PersonaEngineLanding() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const Section = ({ id, children, className = "" }: { 
-    id: string; 
-    children: React.ReactNode;
-    className?: string;
-  }) => (
-    <section id={id} className={`w-full py-20 px-6 md:px-8 ${className}`}>
-      {children}
-    </section>
-  );
+  const navItems: NavItem[] = [
+    { id: "problema", label: "O Problema", onClick: () => scrollTo("problema") },
+    { id: "sistema", label: "Como Funciona", onClick: () => scrollTo("sistema") },
+    { id: "escopo", label: "O Escopo", onClick: () => scrollTo("escopo") },
+    { id: "case", label: "Case Real", onClick: () => scrollTo("case") },
+    { id: "implementacao", label: "Implementação", onClick: () => scrollTo("implementacao") },
+    { id: "cta", label: "Começar", onClick: () => scrollTo("cta") },
+  ];
 
-  /* ------------ Content Data ---------- */
-  const methodology = [
+  const steps = [
     {
-      title: "Voice Market Fit",
-      short: "Rosto certo para o nicho certo.",
-      long: "Não basta ter um bom produto. Você precisa do porta-voz ideal que já tem autoridade no seu mercado e sabe como quebrar objeções específicas do seu ICP.",
-      icon: Target,
-      insight: "A maioria falha porque tenta ser o rosto da própria empresa sem ter autoridade no nicho."
+      number: "01",
+      title: "Lista Inteligente",
+      tagline: "Score 0–100. Só entra quem encaixa.",
+      detail:
+        "A IA analisa firmografia, sinais de mercado e comportamento digital para priorizar os prospects com maior probabilidade de conversão. Sem listas frias compradas no mercado.",
     },
     {
-      title: "Tração Orgânica + Paid",
-      short: "Conteúdo que gera pipeline.",
-      long: "Criamos loops de conteúdo que educam, nutrem e convertem. Começamos orgânico para validar messaging, depois escalamos com paid para acelerar aquisição.",
-      icon: TrendingUp,
-      insight: "Startups queimam budget em ads sem ter messaging validado no orgânico primeiro."
+      number: "02",
+      title: "Enriquecimento",
+      tagline: "Contexto real. Dor mapeada.",
+      detail:
+        "Scraping inteligente + análise semântica identifica o momento exato do prospect: expansão, troca de ferramenta, contratação, crise. Cada abordagem começa com contexto específico.",
     },
     {
-      title: "Handoff Estruturado",
-      short: "Playbooks que ficam na sua empresa.",
-      long: "Não criamos dependência. Entregamos frameworks, scripts e processos para seu time internalizar ou escolher seguir conosco como growth partner.",
-      icon: Users,
-      insight: "Agências tradicionais criam caixa-preta. Nós criamos capacidade interna."
+      number: "03",
+      title: "Abordagem",
+      tagline: "Personalizada. Não parece automação.",
+      detail:
+        "Mensagens geradas por LLM com tom calibrado, gancho específico e variação por canal. Cada mensagem soa como foi escrita por um humano que pesquisou a empresa.",
+    },
+    {
+      number: "04",
+      title: "Qualificação BANT",
+      tagline: "Neurociência + SPIN Selling.",
+      detail:
+        "O agente conduz a conversa aplicando BANT de forma invisível. Detecta gatilhos de Cialdini, estado emocional (Kahneman), objeções ocultas e nível de urgência. Pré-venda automática.",
+    },
+    {
+      number: "05",
+      title: "Agendamento",
+      tagline: "Você entra quando vale a pena.",
+      detail:
+        "Quando o score de qualificação é atingido, o SchedulingAgent propõe a reunião no seu Calendly e confirma. Você recebe o lead pronto — com briefing completo da conversa.",
     },
   ];
 
-  const differentiators = [
+  const metrics = [
+    { before: "4,5%", after: "21,25%", label: "Taxa de resposta", gain: "+372%" },
+    { before: "30", after: "145", label: "Decision-makers", gain: "+383%" },
+    { before: "5", after: "21", label: "Calls agendadas", gain: "+320%" },
+    { before: "R$4.500", after: "R$480", label: "Custo mensal", gain: "−89%" },
+    { before: "0", after: "5", label: "Fechamentos", gain: "∞" },
+    { before: "8h/dia", after: "<3h/dia", label: "Tempo operacional", gain: "−62%" },
+  ];
+
+  const segments = [
     {
-      icon: Brain,
-      title: "Não somos agência tradicional",
-      desc: "Somos ex-founders que entendemos o lado startup. Falamos a linguagem de runway, CAC, LTV e PMF.",
-      problem: "Agências vendem vanity metrics"
+      label: "Consultorias & Advisory",
+      headline: "Pare de depender de indicação.",
+      body: "Tenha pipeline ativo rodando enquanto você entrega para os clientes atuais. Nenhum SDR necessário.",
     },
     {
-      icon: Zap,
-      title: "Pool curado de criadores B2B",
-      desc: "Não pegamos qualquer influencer. Nosso foco são creators que já dominam nichos técnicos e B2B específicos.",
-      problem: "Influencers generalistas não convertem B2B"
+      label: "Agências & SaaS",
+      headline: "Outbound inteligente como canal.",
+      body: "Complementa o inbound. Menor CAC, leads mais qualificados, sem headcount extra.",
     },
     {
-      icon: Rocket,
-      title: "Framework revenue-first",
-      desc: "Cada ação tem que impactar pipeline. Medimos demos agendadas, MQLs e receita - não views ou curtidas.",
-      problem: "Marketing sem conexão com vendas"
+      label: "Incubadoras & Aceleradoras",
+      headline: "Qualifique candidatos em escala.",
+      body: "Menos reuniões desnecessárias. Mais foco nos fundadores com potencial real.",
     },
   ];
 
-  const betaPerks = [
+  const implementation = [
     {
-      icon: Crown,
-      title: "Acesso exclusivo",
-      desc: "Primeiros a testar nossa metodologia com desconto especial para early adopters"
+      week: "Semana 1",
+      title: "Setup",
+      desc: "Infraestrutura configurada. ICP definido. Bases de dados ativadas.",
     },
     {
-      icon: Gift,
-      title: "Investimento reduzido",
-      desc: "50% off nos primeiros 3 meses para beta testers que nos ajudem a refinar o processo"
+      week: "Semana 2",
+      title: "Pipeline de Dados",
+      desc: "500+ empresas pontuadas. Sinais de mercado detectados. Base pronta para disparo.",
     },
     {
-      icon: Star,
-      title: "Atenção 1:1",
-      desc: "Como somos poucos clientes, você terá acesso direto aos founders e atenção personalizada"
-    }
+      week: "Semana 3",
+      title: "Calibração",
+      desc: "Mensagens personalizadas por nicho testadas e validadas com você antes do go-live.",
+    },
+    {
+      week: "Semana 4",
+      title: "Go-Live",
+      desc: "Pipelines operacionais. Inbox gerenciado. CRM atualizado em tempo real.",
+    },
   ];
 
-  const idealProfiles = {
-    startups: [
-      "Startup B2B entre pre-seed e Series A",
-      "Produto pronto, mas falta tração consistente",
-      "Fundador técnico que não quer ser o rosto",
-      "Budget de marketing mas sem expertise interna",
-      "Precisa validar canal antes de escalar team"
-    ],
-    creators: [
-      "Criador de conteúdo B2B com +5k seguidores",
-      "Expertise em nicho específico (SaaS, FinTech, etc)",
-      "Quer monetizar autoridade além de curso/infoproduto",
-      "Interessado em equity/revenue share",
-      "Disponível para projetos de 3-6 meses"
-    ]
+  /* ─── STYLES ─── */
+  const sectionBase: React.CSSProperties = {
+    width: "100%",
+    padding: "100px 24px",
+    maxWidth: "100%",
+    boxSizing: "border-box",
   };
 
-  const faqs = [
-    {
-      q: "Por que devo ser beta tester?",
-      a: "Acesso exclusivo à nossa metodologia com 50% de desconto, atenção 1:1 dos founders e chance de moldar nosso produto junto conosco."
-    },
-    {
-      q: "Qual o investimento para beta testers?",
-      a: "R$ 7.500/mês por 3 meses (50% off do valor final). Inclui matching com criador, estratégia completa e execução."
-    },
-    {
-      q: "E se não der resultado?",
-      a: "Garantia total: se não gerarmos pelo menos 20 demos qualificadas em 90 dias, devolvemos 100% do investimento."
-    },
-    {
-      q: "Como funciona para criadores?",
-      a: "Revenue share de 10-30% dos contratos fechados + fee fixo por projeto. Você mantém sua audiência e ganha nova fonte de receita."
-    },
-    {
-      q: "Quantos beta testers vocês vão aceitar?",
-      a: "Máximo 10 startups e 20 criadores para manter qualidade alta. Depois disso, valores sobem e waitlist se abre."
-    }
-  ];
+  const container: React.CSSProperties = {
+    maxWidth: "1120px",
+    margin: "0 auto",
+  };
+
+  const gold = "#F5A623";
+  const goldDim = "#c4851c";
+  const bg = "#0a0a0a";
+  const surface = "#111111";
+  const surface2 = "#161616";
+  const border = "#1e1e1e";
+  const text = "#e8e8e8";
+  const muted = "#6b7280";
+  const green = "#34d399";
 
   return (
-    <div className="min-h-screen text-white bg-gradient-hero selection:bg-yellow-300/60 relative overflow-x-hidden">
-      {/* Progress Bar */}
-      <motion.div 
-        style={{ width: progressWidth }} 
-        className="fixed top-0 left-0 h-1 bg-gradient-to-r from-yellow-400 to-orange-500 z-50 shadow-lg shadow-yellow-400/50" 
+    <div
+      style={{
+        minHeight: "100vh",
+        background: bg,
+        color: text,
+        fontFamily: "'Geist', 'Inter', sans-serif",
+        overflowX: "hidden",
+      }}
+    >
+      {/* ── Scroll Progress ── */}
+      <motion.div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          height: "2px",
+          background: gold,
+          zIndex: 100,
+          width: progressWidth,
+          boxShadow: `0 0 8px ${gold}88`,
+        }}
       />
 
-      {/* Beta Badge */}
-      <div className="fixed top-20 right-6 z-50">
-        <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg"
-        >
-          🚀 BETA ABERTO
-        </motion.div>
-      </div>
+      {/* ── Nav ── */}
+      <TopNav navItems={navItems} />
 
-      {/* Navigation */}
-      <TopNav navItems={[
-        { id: "metodologia", label: "Metodologia", onClick: () => scrollTo('metodologia') },
-        { id: "diferencial", label: "Por que nós", onClick: () => scrollTo('diferencial') },
-        { id: "beta", label: "Beta Program", onClick: () => scrollTo('beta') },
-        { id: "faq", label: "FAQ", onClick: () => scrollTo('faq') },
-        { id: "cta", label: "Aplicar", onClick: () => scrollTo('cta') },
-      ]} />
-
-      {/* Hero Section */}
-      <Section id="hero" className="pt-20 pb-20">
-        <div className="max-w-6xl mx-auto text-center">
+      {/* ══════════════════════════════════════
+          HERO
+      ══════════════════════════════════════ */}
+      <section style={{ ...sectionBase, paddingTop: "140px", paddingBottom: "80px" }}>
+        <div style={container}>
+          {/* Badge */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 30 }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 12 }}
+            transition={{ duration: 0.5 }}
+            style={{ marginBottom: "40px" }}
           >
-            <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-6 py-2 mb-8">
-              <Lock size={16} className="text-purple-400" />
-              <span className="text-purple-400 font-medium">Beta Program Exclusivo</span>
-            </div>
-
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black mb-4 leading-tight">
-              O elo perdido entre{" "}
-              <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-                startup e audiência
-              </span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-zinc-300 mb-2 max-w-4xl mx-auto leading-relaxed">
-              Conectamos startups B2B com criadores especializados que já dominam seu nicho
-            </p>
-            <p className="text-lg text-zinc-400 mb-8 max-w-3xl mx-auto">
-              Pare de tentar ser o rosto da sua empresa. Encontre quem já tem autoridade no seu mercado e acelere go-to-market.
-            </p>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                background: `${gold}14`,
+                border: `1px solid ${gold}30`,
+                borderRadius: "999px",
+                padding: "6px 16px",
+                fontSize: "12px",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: gold,
+                fontWeight: 500,
+              }}
+            >
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: green, display: "inline-block" }} />
+              Outbound Machine · Persona Engine v2
+            </span>
           </motion.div>
 
-          <motion.div 
-            className="flex flex-col sm:flex-row justify-center gap-6 mb-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "64px",
+              alignItems: "center",
+            }}
           >
-            <Button href="/company/" size="lg" variant="primary">
-              <Rocket size={20} className="mr-2" />
-              Aplicar como Startup
-            </Button>
-            <Button href="/creator/" size="lg" variant="outline">
-              <Star size={20} className="mr-2" />
-              Aplicar como Criador
-            </Button>
-          </motion.div>
-
-          {/* Value Props */}
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-400 mb-2">Voice Market Fit</div>
-              <div className="text-sm text-zinc-400">Rosto certo para seu nicho</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-400 mb-2">Revenue First</div>
-              <div className="text-sm text-zinc-400">Foco em pipeline, não views</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-400 mb-2">Beta Exclusivo</div>
-              <div className="text-sm text-zinc-400">50% off + atenção 1:1</div>
-            </div>
-          </motion.div>
-        </div>
-      </Section>
-
-      {/* Methodology Section */}
-      <Section id="metodologia" className="bg-zinc-900/50">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Nossa <span className="text-yellow-400">metodologia</span>
-            </h2>
-            <p className="text-xl text-zinc-300 max-w-3xl mx-auto">
-              3 pilares que desenvolvemos observando onde a maioria das startups falha
-            </p>
-          </motion.div>
-
-          <div className="space-y-8">
-            {methodology.map((method, i) => {
-              const Icon = method.icon;
-              return (
-                <motion.div
-                  key={i}
-                  layout
-                  onClick={() => setOpenStep(openStep === i ? null : i)}
-                  className="group cursor-pointer"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <div className="p-6 rounded-2xl bg-zinc-800 border border-zinc-700 hover:border-yellow-400/50 transition-all">
-                    <div className="flex items-start gap-6">
-                      <div className="flex-shrink-0">
-                        <div className="p-4 rounded-2xl bg-yellow-400/10 border border-yellow-400/20">
-                          <Icon size={32} className="text-yellow-400" />
-                        </div>
-                      </div>
-                      
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-2xl font-bold group-hover:text-yellow-400 transition-colors">
-                            {method.title}
-                          </h3>
-                          <ChevronDown 
-                            size={20} 
-                            className={`transition-transform duration-300 ${openStep === i ? 'rotate-180' : ''}`} 
-                          />
-                        </div>
-                        
-                        <p className="text-lg text-zinc-300 mb-4">
-                          {method.short}
-                        </p>
-                        
-                        <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-full px-4 py-2 mb-4">
-                          <span className="text-red-400 text-sm font-medium">⚠️ {method.insight}</span>
-                        </div>
-                        
-                        <motion.div
-                          initial={false}
-                          animate={{ height: openStep === i ? 'auto' : 0, opacity: openStep === i ? 1 : 0 }}
-                          className="overflow-hidden"
-                        >
-                          <p className="text-zinc-400 leading-relaxed border-t border-zinc-700 pt-4">
-                            {method.long}
-                          </p>
-                        </motion.div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </Section>
-
-      {/* Differentiators */}
-      <Section id="diferencial">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Por que não somos <span className="text-yellow-400">mais uma agência</span>
-            </h2>
-            <p className="text-xl text-zinc-300 max-w-3xl mx-auto">
-              Entendemos startup porque já estivemos do outro lado da mesa
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {differentiators.map((diff, i) => {
-              const Icon = diff.icon;
-              return (
-                <motion.div
-                  key={i}
-                  className="group"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  whileHover={{ y: -5 }}
-                >
-                  <div className="p-6 rounded-2xl bg-zinc-800 border border-zinc-700 hover:border-yellow-400/50 transition-all h-full">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 mb-6">
-                      <Icon size={28} className="text-black" />
-                    </div>
-                    
-                    <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-full px-3 py-1 mb-4">
-                      <span className="text-red-400 text-xs font-medium">❌ {diff.problem}</span>
-                    </div>
-                    
-                    <h3 className="text-xl font-bold mb-4 group-hover:text-yellow-400 transition-colors">
-                      {diff.title}
-                    </h3>
-                    <p className="text-zinc-300 leading-relaxed">
-                      {diff.desc}
-                    </p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </Section>
-
-      {/* Beta Program */}
-      <Section id="beta" className="bg-gradient-to-br from-purple-900/20 to-pink-900/20">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-6 py-3 mb-6">
-              <Lock size={20} className="text-purple-400" />
-              <span className="text-purple-400 font-bold">ACESSO LIMITADO</span>
-            </div>
-            
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Beta Program <span className="text-purple-400">Exclusivo</span>
-            </h2>
-            <p className="text-xl text-zinc-300 max-w-3xl mx-auto mb-8">
-              Seja um dos primeiros a testar nossa metodologia. Vagas limitadas para manter qualidade.
-            </p>
-            
-            <div className="inline-flex items-center gap-4 bg-yellow-400/10 border border-yellow-400/20 rounded-2xl px-8 py-4">
-              <span className="text-2xl">⏰</span>
-              <div className="text-left">
-                <div className="font-bold text-yellow-400">Apenas 10 vagas para startups</div>
-                <div className="text-sm text-zinc-400">Depois disso, waitlist se abre</div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Beta Perks */}
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            {betaPerks.map((perk, i) => {
-              const Icon = perk.icon;
-              return (
-                <motion.div
-                  key={i}
-                  className="text-center"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 mb-6">
-                    <Icon size={32} className="text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3 text-purple-400">
-                    {perk.title}
-                  </h3>
-                  <p className="text-zinc-300 leading-relaxed">
-                    {perk.desc}
-                  </p>
-                </motion.div>
-              );
-            })}
-          </div>
-
-          {/* Ideal Profiles */}
-          <div className="grid md:grid-cols-2 gap-8">
+            {/* Left */}
             <motion.div
-              className="p-8 bg-gradient-to-br from-green-900/20 to-emerald-900/20 rounded-3xl border border-green-500/20"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 24 }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+            >
+              <h1
+                style={{
+                  fontSize: "clamp(40px, 5vw, 64px)",
+                  fontWeight: 800,
+                  lineHeight: 1.05,
+                  marginBottom: "24px",
+                  letterSpacing: "-0.03em",
+                }}
+              >
+                Seu time deveria estar{" "}
+                <span
+                  style={{
+                    color: gold,
+                    fontStyle: "italic",
+                    display: "block",
+                  }}
+                >
+                  fechando,
+                </span>
+                não prospectando.
+              </h1>
+
+              <p
+                style={{
+                  fontSize: "18px",
+                  lineHeight: 1.7,
+                  color: muted,
+                  maxWidth: "480px",
+                  marginBottom: "40px",
+                }}
+              >
+                Infraestrutura de outbound com IA que identifica, aborda e qualifica leads B2B — do primeiro contato ao agendamento. Sem SDR. Sem esforço manual.
+              </p>
+
+              <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+                <button
+                  onClick={() => window.open("https://wa.me/5547999085741?text=Olá Gabriel, quero saber mais sobre a Outbound Machine", "_blank")}
+                  style={{
+                    background: gold,
+                    color: "#000",
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "14px 28px",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseOver={e => (e.currentTarget.style.background = "#fbbf24")}
+                  onMouseOut={e => (e.currentTarget.style.background = gold)}
+                >
+                  Ver Como Funciona →
+                </button>
+                <button
+                  onClick={() => scrollTo("case")}
+                  style={{
+                    background: "transparent",
+                    color: text,
+                    border: `1px solid ${border}`,
+                    borderRadius: "8px",
+                    padding: "14px 28px",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseOver={e => {
+                    e.currentTarget.style.borderColor = gold + "44";
+                    e.currentTarget.style.color = gold;
+                  }}
+                  onMouseOut={e => {
+                    e.currentTarget.style.borderColor = border;
+                    e.currentTarget.style.color = text;
+                  }}
+                >
+                  Ver Case Real
+                </button>
+              </div>
+
+              {/* Trust signals */}
+              <div
+                style={{
+                  display: "flex",
+                  gap: "32px",
+                  marginTop: "48px",
+                  paddingTop: "32px",
+                  borderTop: `1px solid ${border}`,
+                }}
+              >
+                {[
+                  { n: "21%+", l: "taxa de resposta" },
+                  { n: "89%", l: "redução de custo" },
+                  { n: "4 sem.", l: "para go-live" },
+                ].map((item, i) => (
+                  <div key={i}>
+                    <div style={{ fontSize: "22px", fontWeight: 700, color: gold }}>{item.n}</div>
+                    <div style={{ fontSize: "12px", color: muted, marginTop: "2px" }}>{item.l}</div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Right – Terminal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: isVisible ? 1 : 0, scale: isVisible ? 1 : 0.97 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              <TerminalLog />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          PROBLEMA
+      ══════════════════════════════════════ */}
+      <section id="problema" style={{ ...sectionBase, background: surface }}>
+        <div style={container}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <span style={{ color: gold, fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}>
+              O Problema
+            </span>
+            <h2
+              style={{
+                fontSize: "clamp(32px, 4vw, 52px)",
+                fontWeight: 800,
+                lineHeight: 1.1,
+                marginTop: "16px",
+                marginBottom: "16px",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              O modelo antigo está te custando
+              <br />
+              mais do que você pensa.
+            </h2>
+            <p style={{ color: muted, fontSize: "18px", maxWidth: "560px", marginBottom: "64px", lineHeight: 1.7 }}>
+              Um SDR humano custa R$4.500/mês, trabalha 8h em tarefas repetitivas e entrega 4,5% de taxa de resposta. Isso não é operação. É gasto disfarçado de processo.
+            </p>
+          </motion.div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "2px",
+              background: border,
+              borderRadius: "12px",
+              overflow: "hidden",
+            }}
+          >
+            {[
+              {
+                icon: "⏱",
+                label: "Tempo desperdiçado",
+                stat: "8h/dia",
+                desc: "Um SDR passa a maior parte do dia em tarefas que uma IA executa em segundos: pesquisa, enriquecimento, personalização.",
+              },
+              {
+                icon: "📉",
+                label: "Taxa de resposta real",
+                stat: "4,5%",
+                desc: "667 touchpoints para falar com 30 decision-makers. 95,5% do esforço vai para o lixo.",
+              },
+              {
+                icon: "💸",
+                label: "Custo sem retorno",
+                stat: "R$4.500",
+                desc: "Por mês. Sem garantia de resultado. Sem escalabilidade. E ainda com turnover alto.",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.12 }}
+                style={{
+                  background: surface2,
+                  padding: "40px 36px",
+                }}
+              >
+                <div style={{ fontSize: "28px", marginBottom: "16px" }}>{item.icon}</div>
+                <div style={{ fontSize: "11px", color: muted, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "8px" }}>
+                  {item.label}
+                </div>
+                <div style={{ fontSize: "42px", fontWeight: 800, color: "#ef4444", marginBottom: "16px", letterSpacing: "-0.02em" }}>
+                  {item.stat}
+                </div>
+                <p style={{ color: muted, fontSize: "14px", lineHeight: 1.7 }}>{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.blockquote
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            style={{
+              marginTop: "56px",
+              borderLeft: `3px solid ${gold}`,
+              paddingLeft: "28px",
+              fontStyle: "italic",
+              fontSize: "20px",
+              color: "#d1d5db",
+              lineHeight: 1.6,
+            }}
+          >
+            "A vantagem competitiva não é o produto.
+            <br />É quem descobre o cliente certo, na hora certa."
+          </motion.blockquote>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          SISTEMA / COMO FUNCIONA
+      ══════════════════════════════════════ */}
+      <section id="sistema" style={{ ...sectionBase }}>
+        <div style={container}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <span style={{ color: gold, fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}>
+              A Solução
+            </span>
+            <h2
+              style={{
+                fontSize: "clamp(32px, 4vw, 52px)",
+                fontWeight: 800,
+                lineHeight: 1.1,
+                marginTop: "16px",
+                marginBottom: "16px",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Infraestrutura comercial com IA.
+              <br />
+              <span style={{ color: gold }}>Do primeiro contato ao agendamento.</span>
+            </h2>
+            <p style={{ color: muted, fontSize: "18px", maxWidth: "560px", marginBottom: "64px", lineHeight: 1.7 }}>
+              Não é uma ferramenta. É um sistema completo de agentes autônomos orquestrado enquanto você dorme.
+            </p>
+          </motion.div>
+
+          {/* Steps */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            {steps.map((step, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -16 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                onClick={() => setActiveStep(activeStep === i ? null : i)}
+                style={{
+                  background: activeStep === i ? surface2 : surface,
+                  border: `1px solid ${activeStep === i ? gold + "30" : border}`,
+                  borderRadius: "10px",
+                  padding: "28px 32px",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  display: "grid",
+                  gridTemplateColumns: "80px 1fr auto",
+                  gap: "24px",
+                  alignItems: "center",
+                }}
+                onMouseOver={e => {
+                  if (activeStep !== i) {
+                    (e.currentTarget as HTMLElement).style.borderColor = gold + "20";
+                  }
+                }}
+                onMouseOut={e => {
+                  if (activeStep !== i) {
+                    (e.currentTarget as HTMLElement).style.borderColor = border;
+                  }
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "36px",
+                    fontWeight: 800,
+                    color: activeStep === i ? gold : "#2a2a2a",
+                    letterSpacing: "-0.04em",
+                    lineHeight: 1,
+                    transition: "color 0.2s",
+                    fontVariantNumeric: "tabular-nums",
+                  }}
+                >
+                  {step.number}
+                </div>
+
+                <div>
+                  <div
+                    style={{
+                      fontSize: "18px",
+                      fontWeight: 700,
+                      color: text,
+                      marginBottom: "4px",
+                    }}
+                  >
+                    {step.title}
+                  </div>
+                  <div style={{ fontSize: "14px", color: muted }}>{step.tagline}</div>
+
+                  <AnimatePresence>
+                    {activeStep === i && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                        animate={{ opacity: 1, height: "auto", marginTop: "16px" }}
+                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                        transition={{ duration: 0.25 }}
+                        style={{
+                          fontSize: "14px",
+                          color: "#9ca3af",
+                          lineHeight: 1.8,
+                          maxWidth: "600px",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {step.detail}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                <div
+                  style={{
+                    color: activeStep === i ? gold : muted,
+                    fontSize: "20px",
+                    transition: "color 0.2s",
+                    transform: activeStep === i ? "rotate(180deg)" : "rotate(0)",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  ↓
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Behavioral layer callout */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{
+              marginTop: "48px",
+              background: `linear-gradient(135deg, ${gold}0a 0%, transparent 60%)`,
+              border: `1px solid ${gold}20`,
+              borderRadius: "12px",
+              padding: "32px 36px",
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "32px",
+              alignItems: "center",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: gold,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  fontWeight: 600,
+                  marginBottom: "12px",
+                }}
+              >
+                Diferencial técnico
+              </div>
+              <h3 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "12px", lineHeight: 1.3 }}>
+                Behavioral Layer
+              </h3>
+              <p style={{ color: muted, fontSize: "14px", lineHeight: 1.8 }}>
+                Não é apenas um ChatGPT conectado ao WhatsApp. A camada comportamental detecta gatilhos de Cialdini, vieses cognitivos (Kahneman), objeções ocultas e estado emocional — e calibra cada resposta em tempo real.
+              </p>
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "8px",
+              }}
+            >
+              {["BANT", "SPIN Selling", "Cialdini", "Chris Voss", "Kahneman", "Reciprocidade"].map(tag => (
+                <div
+                  key={tag}
+                  style={{
+                    background: surface2,
+                    border: `1px solid ${border}`,
+                    borderRadius: "6px",
+                    padding: "8px 12px",
+                    fontSize: "12px",
+                    color: "#9ca3af",
+                    textAlign: "center",
+                  }}
+                >
+                  {tag}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          O ESCOPO (REDESIGN PREMIUM)
+      ══════════════════════════════════════ */}
+      <section id="escopo" style={{ ...sectionBase, position: "relative" }}>
+        {/* Decorative background glow */}
+        <div style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "800px",
+          height: "800px",
+          background: `radial-gradient(circle, ${gold}08 0%, transparent 60%)`,
+          pointerEvents: "none",
+          zIndex: 0
+        }} />
+
+        <div style={{ ...container, position: "relative", zIndex: 1 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{ textAlign: "center", marginBottom: "64px" }}
+          >
+            <span style={{ 
+              display: "inline-block", 
+              padding: "6px 16px", 
+              background: `${gold}15`, 
+              border: `1px solid ${gold}30`, 
+              borderRadius: "999px",
+              color: gold, 
+              fontSize: "12px", 
+              letterSpacing: "0.1em", 
+              textTransform: "uppercase", 
+              fontWeight: 600,
+              marginBottom: "24px"
+            }}>
+              Operation as a Service
+            </span>
+            <h2
+              style={{
+                fontSize: "clamp(36px, 5vw, 56px)",
+                fontWeight: 800,
+                lineHeight: 1.1,
+                marginBottom: "24px",
+                letterSpacing: "-0.03em",
+              }}
+            >
+              Não entregamos ferramenta.<br/>
+              <span style={{ color: muted, fontWeight: 400 }}>Entregamos o motor rodando.</span>
+            </h2>
+            <p style={{ color: "#9ca3af", fontSize: "18px", maxWidth: "720px", margin: "0 auto", lineHeight: 1.7 }}>
+              O <strong style={{color: text}}>Persona Engine</strong> é um serviço com IA onde assumimos a sua operação comercial de originação e prospecção. Resolvemos a dor de não ter equipe ativa ou previsibilidade, criando um pipeline de vendas altamente qualificado.
+            </p>
+          </motion.div>
+
+          {/* Cards Encantadores */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+              gap: "32px",
+            }}
+          >
+            {/* Card 1: Setup RevOps */}
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              style={{
+                background: `linear-gradient(145deg, ${surface} 0%, ${surface2} 100%)`,
+                border: `1px solid ${border}`,
+                borderRadius: "24px",
+                padding: "48px",
+                position: "relative",
+                overflow: "hidden",
+                boxShadow: "0 24px 48px rgba(0,0,0,0.4)"
+              }}
             >
-              <h3 className="text-2xl font-bold mb-6 text-green-400 flex items-center gap-3">
-                <Rocket size={28} />
-                Perfil ideal - Startups
-              </h3>
-              <ul className="space-y-3">
-                {idealProfiles.startups.map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <CheckCircle size={20} className="text-green-400 flex-shrink-0 mt-0.5" />
-                    <span className="text-zinc-300">{item}</span>
+              <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "1px", background: `linear-gradient(90deg, transparent, ${gold}40, transparent)` }} />
+              
+              <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: `${gold}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", marginBottom: "32px", border: `1px solid ${gold}30` }}>
+                🏗️
+              </div>
+              <h3 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", letterSpacing: "-0.02em" }}>Engenharia de RevOps</h3>
+              <p style={{ color: muted, fontSize: "16px", lineHeight: 1.8, marginBottom: "24px" }}>
+                A inteligência precisa de estrutura. Nós construímos toda a fundação antes de ligar a máquina:
+              </p>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, color: text, fontSize: "15px", lineHeight: 2 }}>
+                {[
+                  "Definição cirúrgica de ICP",
+                  "Arquitetura de funis de venda",
+                  "Estruturação da esteira de produtos/serviços",
+                  "Playbooks de originação e qualificação"
+                ].map((item, i) => (
+                  <li key={i} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: gold }} />
+                    {item}
                   </li>
                 ))}
               </ul>
             </motion.div>
 
+            {/* Card 2: Outbound IA */}
             <motion.div
-              className="p-8 bg-gradient-to-br from-blue-900/20 to-cyan-900/20 rounded-3xl border border-blue-500/20"
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              style={{
+                background: `linear-gradient(145deg, ${surface} 0%, ${surface2} 100%)`,
+                border: `1px solid ${border}`,
+                borderRadius: "24px",
+                padding: "48px",
+                position: "relative",
+                overflow: "hidden",
+                boxShadow: "0 24px 48px rgba(0,0,0,0.4)"
+              }}
             >
-              <h3 className="text-2xl font-bold mb-6 text-blue-400 flex items-center gap-3">
-                <Star size={28} />
-                Perfil ideal - Criadores
-              </h3>
-              <ul className="space-y-3">
-                {idealProfiles.creators.map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <CheckCircle size={20} className="text-blue-400 flex-shrink-0 mt-0.5" />
-                    <span className="text-zinc-300">{item}</span>
+              <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "1px", background: `linear-gradient(90deg, transparent, #3b82f640, transparent)` }} />
+              
+              <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: `#3b82f615`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", marginBottom: "32px", border: `1px solid #3b82f630` }}>
+                🧠
+              </div>
+              <h3 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "16px", letterSpacing: "-0.02em" }}>Infraestrutura Autônoma</h3>
+              <p style={{ color: muted, fontSize: "16px", lineHeight: 1.8, marginBottom: "24px" }}>
+                Com a base pronta, ativamos nossa infraestrutura para operar o outbound de forma invisível:
+              </p>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, color: text, fontSize: "15px", lineHeight: 2 }}>
+                {[
+                  "Agentes de IA especializados em prospecção",
+                  "Aplicação contínua de vieses cognitivos",
+                  "Abordagem multicanal humanizada",
+                  "Oportunidades mapeadas e qualificadas"
+                ].map((item, i) => (
+                  <li key={i} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                     <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#3b82f6" }} />
+                    {item}
                   </li>
                 ))}
               </ul>
             </motion.div>
           </div>
         </div>
-      </Section>
+      </section>
 
-      {/* FAQ */}
-      <Section id="faq" className="bg-zinc-900/50">
-        <div className="max-w-4xl mx-auto">
+      {/* ══════════════════════════════════════
+          CASE REAL
+      ══════════════════════════════════════ */}
+      <section id="case" style={{ ...sectionBase, background: surface }}>
+        <div style={container}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Perguntas <span className="text-yellow-400">diretas</span>
+            <span style={{ color: gold, fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}>
+              Case Real
+            </span>
+            <h2
+              style={{
+                fontSize: "clamp(32px, 4vw, 52px)",
+                fontWeight: 800,
+                lineHeight: 1.1,
+                marginTop: "16px",
+                marginBottom: "8px",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Mesmo período. Mesmo volume.
             </h2>
-            <p className="text-xl text-zinc-300">
-              Sem enrolação. As dúvidas mais comuns sobre o beta program.
+            <h2
+              style={{
+                fontSize: "clamp(32px, 4vw, 52px)",
+                fontWeight: 800,
+                lineHeight: 1.1,
+                letterSpacing: "-0.02em",
+                marginBottom: "16px",
+                color: gold,
+              }}
+            >
+              Resultados completamente diferentes.
+            </h2>
+            <p style={{ color: muted, fontSize: "16px", marginBottom: "56px" }}>
+              Advisory financeiro · 29 dias · mesmo ICP
             </p>
           </motion.div>
 
-          <div className="space-y-4">
-            {faqs.map((faq, i) => (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "2px",
+              background: border,
+              borderRadius: "12px",
+              overflow: "hidden",
+              marginBottom: "2px",
+            }}
+          >
+            {metrics.slice(0, 3).map((m, i) => (
               <motion.div
                 key={i}
-                onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                className="p-6 bg-zinc-800 border border-zinc-700 rounded-2xl cursor-pointer hover:border-yellow-400/50 transition-all duration-300"
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                whileHover={{ scale: 1.01 }}
+                style={{ background: surface2, padding: "32px" }}
               >
-                <div className="flex justify-between items-start">
-                  <span className="text-lg font-semibold text-white pr-4">{faq.q}</span>
-                  <ChevronDown 
-                    size={20} 
-                    className={`transition-transform duration-300 text-yellow-400 flex-shrink-0 ${openFaq === i ? 'rotate-180' : ''}`} 
-                  />
+                <div style={{ fontSize: "12px", color: muted, marginBottom: "20px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  {m.label}
                 </div>
-                <motion.div
-                  initial={false}
-                  animate={{ height: openFaq === i ? 'auto' : 0, opacity: openFaq === i ? 1 : 0 }}
-                  className="overflow-hidden"
+                <div style={{ display: "flex", alignItems: "flex-end", gap: "16px", marginBottom: "8px" }}>
+                  <div>
+                    <div style={{ fontSize: "12px", color: "#ef444480", marginBottom: "4px" }}>antes</div>
+                    <div style={{ fontSize: "28px", fontWeight: 700, color: "#ef4444", letterSpacing: "-0.02em" }}>{m.before}</div>
+                  </div>
+                  <div style={{ color: muted, fontSize: "20px", paddingBottom: "4px" }}>→</div>
+                  <div>
+                    <div style={{ fontSize: "12px", color: green + "80", marginBottom: "4px" }}>depois</div>
+                    <div style={{ fontSize: "28px", fontWeight: 700, color: green, letterSpacing: "-0.02em" }}>{m.after}</div>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: "inline-block",
+                    background: green + "15",
+                    border: `1px solid ${green}30`,
+                    borderRadius: "999px",
+                    padding: "3px 10px",
+                    fontSize: "12px",
+                    color: green,
+                    fontWeight: 600,
+                  }}
                 >
-                  <p className="mt-4 text-zinc-300 leading-relaxed border-t border-zinc-600 pt-4">
-                    {faq.a}
-                  </p>
-                </motion.div>
+                  {m.gain}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "2px",
+              background: border,
+              borderRadius: "12px",
+              overflow: "hidden",
+            }}
+          >
+            {metrics.slice(3).map((m, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: (i + 3) * 0.1 }}
+                style={{ background: surface2, padding: "32px" }}
+              >
+                <div style={{ fontSize: "12px", color: muted, marginBottom: "20px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  {m.label}
+                </div>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: "16px", marginBottom: "8px" }}>
+                  <div>
+                    <div style={{ fontSize: "12px", color: "#ef444480", marginBottom: "4px" }}>antes</div>
+                    <div style={{ fontSize: "28px", fontWeight: 700, color: "#ef4444", letterSpacing: "-0.02em" }}>{m.before}</div>
+                  </div>
+                  <div style={{ color: muted, fontSize: "20px", paddingBottom: "4px" }}>→</div>
+                  <div>
+                    <div style={{ fontSize: "12px", color: green + "80", marginBottom: "4px" }}>depois</div>
+                    <div style={{ fontSize: "28px", fontWeight: 700, color: green, letterSpacing: "-0.02em" }}>{m.after}</div>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: "inline-block",
+                    background: green + "15",
+                    border: `1px solid ${green}30`,
+                    borderRadius: "999px",
+                    padding: "3px 10px",
+                    fontSize: "12px",
+                    color: green,
+                    fontWeight: 600,
+                  }}
+                >
+                  {m.gain}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            style={{
+              marginTop: "32px",
+              textAlign: "center",
+              padding: "20px",
+              background: surface2,
+              borderRadius: "10px",
+              border: `1px solid ${border}`,
+            }}
+          >
+            <span style={{ color: muted, fontSize: "14px" }}>
+              Custo por deal com SDR:{" "}
+              <span style={{ color: "#ef4444", fontWeight: 700 }}>∞ (zero fechamentos)</span>
+              {"  ·  "}
+              Custo por deal com Outbound Machine:{" "}
+              <span style={{ color: green, fontWeight: 700 }}>R$3.152</span>
+            </span>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          SEGMENTOS
+      ══════════════════════════════════════ */}
+      <section style={{ ...sectionBase }}>
+        <div style={container}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <span style={{ color: gold, fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}>
+              Para quem é
+            </span>
+            <h2
+              style={{
+                fontSize: "clamp(32px, 4vw, 48px)",
+                fontWeight: 800,
+                lineHeight: 1.1,
+                marginTop: "16px",
+                marginBottom: "16px",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Funciona para quem vende B2B
+              <br />
+              <span style={{ color: muted, fontWeight: 400 }}>e quer crescer sem aumentar equipe.</span>
+            </h2>
+          </motion.div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+              gap: "16px",
+              marginTop: "48px",
+            }}
+          >
+            {segments.map((seg, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                style={{
+                  background: surface,
+                  border: `1px solid ${border}`,
+                  borderRadius: "12px",
+                  padding: "36px",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: "2px",
+                    background: gold,
+                  }}
+                />
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: gold,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    fontWeight: 600,
+                    marginBottom: "20px",
+                  }}
+                >
+                  {seg.label}
+                </div>
+                <h3 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "12px", lineHeight: 1.3 }}>
+                  {seg.headline}
+                </h3>
+                <p style={{ color: muted, fontSize: "15px", lineHeight: 1.7 }}>{seg.body}</p>
               </motion.div>
             ))}
           </div>
         </div>
-      </Section>
+      </section>
 
-      {/* CTA */}
-      <Section id="cta">
-        <motion.div
-          className="text-center py-20 bg-gradient-to-br from-yellow-400 to-orange-500 text-black rounded-3xl mx-auto max-w-5xl relative overflow-hidden"
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 bg-black/10 rounded-full px-6 py-3 mb-6">
-              <Lock size={20} className="text-black/70" />
-              <span className="font-bold text-black/70">VAGAS LIMITADAS</span>
-            </div>
-            
-            <h2 className="text-4xl md:text-6xl font-bold mb-6">
-              Pronto para ser <span className="text-black/80">beta tester</span>?
+      {/* ══════════════════════════════════════
+          IMPLEMENTAÇÃO
+      ══════════════════════════════════════ */}
+      <section id="implementacao" style={{ ...sectionBase, background: surface }}>
+        <div style={container}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <span style={{ color: gold, fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}>
+              Implementação
+            </span>
+            <h2
+              style={{
+                fontSize: "clamp(32px, 4vw, 52px)",
+                fontWeight: 800,
+                lineHeight: 1.1,
+                marginTop: "16px",
+                marginBottom: "16px",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Operacional em 4 semanas.
             </h2>
-            <p className="text-xl mb-8 text-black/80 max-w-3xl mx-auto leading-relaxed">
-              Processo seletivo rápido. Respondemos em até 48h se você foi aceito no programa.
+            <p style={{ color: muted, fontSize: "18px", maxWidth: "520px", marginBottom: "64px", lineHeight: 1.7 }}>
+              Da configuração da inteligência ao go-live com leads chegando no seu CRM.
             </p>
-            
-            <div className="flex flex-col sm:flex-row justify-center gap-6 mb-8">
-              <Button 
-                size="lg" 
-                onClick={() => window.open('mailto:beta@personaengine.com?subject=Aplicação Beta - Criador', '_blank')}
-              >
-                <Star size={20} className="mr-2" />
-                Aplicar como Criador
-              </Button>
-            </div>
-            
-            <div className="text-sm text-black/60">
-              💡 Processo seletivo: formulário → call de 15min → decisão em 48h
+          </motion.div>
+
+          {/* Timeline */}
+          <div style={{ position: "relative" }}>
+            {/* Connecting line */}
+            <div
+              style={{
+                position: "absolute",
+                top: "32px",
+                left: "31px",
+                bottom: "32px",
+                width: "2px",
+                background: `linear-gradient(to bottom, ${gold}, ${gold}20)`,
+              }}
+            />
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0px" }}>
+              {implementation.map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.12 }}
+                  style={{
+                    display: "flex",
+                    gap: "32px",
+                    alignItems: "flex-start",
+                    padding: "24px 0",
+                  }}
+                >
+                  {/* Dot */}
+                  <div
+                    style={{
+                      width: "64px",
+                      height: "64px",
+                      borderRadius: "50%",
+                      background: i < 2 ? gold : surface2,
+                      border: `2px solid ${i < 2 ? gold : border}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "18px",
+                      fontWeight: 800,
+                      color: i < 2 ? "#000" : muted,
+                      flexShrink: 0,
+                      zIndex: 1,
+                    }}
+                  >
+                    {i + 1}
+                  </div>
+
+                  <div style={{ paddingTop: "16px" }}>
+                    <div style={{ fontSize: "12px", color: gold, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "6px" }}>
+                      {item.week}
+                    </div>
+                    <div style={{ fontSize: "20px", fontWeight: 700, marginBottom: "8px" }}>{item.title}</div>
+                    <p style={{ color: muted, fontSize: "15px", lineHeight: 1.7 }}>{item.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
-        </motion.div>
-      </Section>
 
-      {/* Footer */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{
+              marginTop: "48px",
+              background: `${gold}10`,
+              border: `1px solid ${gold}25`,
+              borderRadius: "10px",
+              padding: "20px 28px",
+              fontSize: "16px",
+              fontWeight: 600,
+              color: gold,
+            }}
+          >
+            A partir da semana 5 — leads qualificados chegam continuamente.
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          CTA
+      ══════════════════════════════════════ */}
+      <section id="cta" style={{ ...sectionBase }}>
+        <div style={{ ...container, textAlign: "center" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div
+              style={{
+                background: surface,
+                border: `1px solid ${border}`,
+                borderRadius: "20px",
+                padding: "80px 60px",
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              {/* Background glow */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: "-40%",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: "600px",
+                  height: "300px",
+                  background: `radial-gradient(ellipse, ${gold}12 0%, transparent 70%)`,
+                  pointerEvents: "none",
+                }}
+              />
+
+              {/* Corner lines */}
+              <div style={{ position: "absolute", top: 0, left: 0, width: "60px", height: "2px", background: gold }} />
+              <div style={{ position: "absolute", top: 0, left: 0, width: "2px", height: "60px", background: gold }} />
+              <div style={{ position: "absolute", bottom: 0, right: 0, width: "60px", height: "2px", background: gold }} />
+              <div style={{ position: "absolute", bottom: 0, right: 0, width: "2px", height: "60px", background: gold }} />
+
+              <div style={{ position: "relative", zIndex: 1 }}>
+                <h2
+                  style={{
+                    fontSize: "clamp(28px, 4vw, 52px)",
+                    fontWeight: 800,
+                    lineHeight: 1.1,
+                    marginBottom: "20px",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  Seu pipeline não deveria
+                  <br />
+                  depender de você estar online.
+                </h2>
+
+                <p
+                  style={{
+                    color: muted,
+                    fontSize: "18px",
+                    maxWidth: "520px",
+                    margin: "0 auto 48px",
+                    lineHeight: 1.7,
+                  }}
+                >
+                  Enquanto você lê isso, a Outbound Machine poderia estar qualificando seus próximos clientes.
+                </p>
+
+                <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
+                  <button
+                    onClick={() =>
+                      window.open(
+                        "https://wa.me/5547999085741?text=Olá Gabriel, quero saber mais sobre a Outbound Machine",
+                        "_blank"
+                      )
+                    }
+                    style={{
+                      background: gold,
+                      color: "#000",
+                      border: "none",
+                      borderRadius: "8px",
+                      padding: "16px 36px",
+                      fontSize: "15px",
+                      fontWeight: 700,
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                    }}
+                    onMouseOver={e => (e.currentTarget.style.background = "#fbbf24")}
+                    onMouseOut={e => (e.currentTarget.style.background = gold)}
+                  >
+                    Quero Ver Funcionando →
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      window.open("https://wa.me/5547999085741?text=Olá Gabriel, quero saber mais sobre a Outbound Machine", "_blank")
+                    }
+                    style={{
+                      background: "transparent",
+                      color: text,
+                      border: `1px solid ${border}`,
+                      borderRadius: "8px",
+                      padding: "16px 36px",
+                      fontSize: "15px",
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                    }}
+                    onMouseOver={e => {
+                      e.currentTarget.style.borderColor = gold + "40";
+                      e.currentTarget.style.color = gold;
+                    }}
+                    onMouseOut={e => {
+                      e.currentTarget.style.borderColor = border;
+                      e.currentTarget.style.color = text;
+                    }}
+                  >
+                    Falar com um Consultor
+                  </button>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "24px",
+                    justifyContent: "center",
+                    marginTop: "48px",
+                    paddingTop: "32px",
+                    borderTop: `1px solid ${border}`,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {["Consultorias & Advisory", "Agências & SaaS", "Incubadoras & Aceleradoras"].map((seg, i) => (
+                    <span key={i} style={{ color: muted, fontSize: "13px" }}>
+                      · {seg}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
       <Footer />
     </div>
   );

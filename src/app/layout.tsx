@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Persona Engine - GTM as a Service",
-  description: "Criadores certificados + growth full-stack para startups técnicas. Autoridade que gera pipeline, não likes.",
+  title: "Persona Engine - Outbound Machine com IA",
+  description: "Infraestrutura comercial inteligente com IA para prospecção outbound omnichannel. Seu time comercial deveria estar fechando, não prospectando.",
 };
 
 export const viewport = {
