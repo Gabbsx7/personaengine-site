@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Persona Engine - Outbound Machine com IA",
+  title: "Reveniee - Outbound Machine com IA",
   description: "Infraestrutura comercial inteligente com IA para prospecção outbound omnichannel. Seu time comercial deveria estar fechando, não prospectando.",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/R.png",
   },
 };
 

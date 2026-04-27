@@ -15,12 +15,12 @@ interface NavItem {
 /* ─── TERMINAL LOG ANIMATION ─── */
 function TerminalLog() {
   const lines = [
-    { text: "→ inicializando persona_engine v2.1", color: "#6b7280", delay: 0 },
-    { text: "✓ ICP carregado · 847 empresas no funil", color: "#f59e0b", delay: 0.4 },
-    { text: "✓ Lead identificado: TechCorp Ltda", color: "#f59e0b", delay: 0.9 },
+    { text: "→ inicializando reveniee v2.1", color: "#6b7280", delay: 0 },
+    { text: "✓ ICP carregado · 847 empresas no funil", color: "#a855f7", delay: 0.4 },
+    { text: "✓ Lead identificado: TechCorp Ltda", color: "#a855f7", delay: 0.9 },
     { text: "  score_fit: 91/100 · sinal: expansão latam", color: "#9ca3af", delay: 1.2 },
-    { text: "✓ Enriquecimento concluído · dor mapeada", color: "#f59e0b", delay: 1.7 },
-    { text: "✓ Abordagem gerada · WhatsApp · tom: consultivo", color: "#f59e0b", delay: 2.3 },
+    { text: "✓ Enriquecimento concluído · dor mapeada", color: "#a855f7", delay: 1.7 },
+    { text: "✓ Abordagem gerada · WhatsApp · tom: consultivo", color: "#a855f7", delay: 2.3 },
     { text: "✓ Resposta recebida · status: interessado", color: "#34d399", delay: 3.0 },
     { text: "→ BANT score: 78 · urgência detectada", color: "#9ca3af", delay: 3.5 },
     { text: "✓ Reunião agendada · Gabriel notificado", color: "#34d399", delay: 4.1 },
@@ -78,7 +78,7 @@ function TerminalLog() {
       <motion.span
         animate={{ opacity: [1, 0, 1] }}
         transition={{ duration: 1, repeat: Infinity }}
-        style={{ color: "#f59e0b", display: "inline-block" }}
+        style={{ color: "#a855f7", display: "inline-block" }}
       >
         ▌
       </motion.span>
@@ -260,7 +260,7 @@ export default function OutboundMachineLanding() {
     margin: "0 auto",
   };
 
-  const gold = "#F5A623";
+  const gold = "#8b5cf6";
   // const goldDim = "#c4851c"; // Unused
   const bg = "#0a0a0a";
   const surface = "#111111";
@@ -326,7 +326,7 @@ export default function OutboundMachineLanding() {
               }}
             >
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: green, display: "inline-block" }} />
-              Outbound Machine · Persona Engine v2
+              Outbound Machine · Reveniee v2
             </span>
           </motion.div>
 
@@ -809,7 +809,7 @@ export default function OutboundMachineLanding() {
               <span style={{ color: muted, fontWeight: 400 }}>Entregamos o motor rodando.</span>
             </h2>
             <p style={{ color: "#9ca3af", fontSize: "18px", maxWidth: "720px", margin: "0 auto", lineHeight: 1.7 }}>
-              O <strong style={{color: text}}>Persona Engine</strong> é um serviço com IA onde assumimos a sua operação comercial de originação e prospecção. Resolvemos a dor de não ter equipe ativa ou previsibilidade, criando um pipeline de vendas altamente qualificado.
+              O <strong style={{color: text}}>Reveniee</strong> é um serviço com IA onde assumimos a sua operação comercial de originação e prospecção. Resolvemos a dor de não ter equipe ativa ou previsibilidade, criando um pipeline de vendas altamente qualificado.
             </p>
           </motion.div>
 

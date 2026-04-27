@@ -4,8 +4,8 @@
 :root {
   --background: #0a0a0a;
   --foreground: #ffffff;
-  --primary: #fbbf24;
-  --primary-dark: #f59e0b;
+  --primary: #a855f7;
+  --primary-dark: #8b5cf6;
   --accent: #8b5cf6;
   --accent-light: #a78bfa;
   --success: #10b981;
@@ -133,8 +133,8 @@ input:focus, select:focus, textarea:focus {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(251, 191, 36, 0.6); }
+  0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(168, 85, 247, 0.6); }
 }
 
 @keyframes gradient-shift {
