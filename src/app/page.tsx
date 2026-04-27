@@ -250,7 +250,7 @@ export default function OutboundMachineLanding() {
   /* ─── STYLES ─── */
   const sectionBase: React.CSSProperties = {
     width: "100%",
-    padding: "100px 24px",
+    
     maxWidth: "100%",
     boxSizing: "border-box",
   };
@@ -300,7 +300,7 @@ export default function OutboundMachineLanding() {
       {/* ══════════════════════════════════════
           HERO
       ══════════════════════════════════════ */}
-      <section style={{ ...sectionBase, paddingTop: "140px", paddingBottom: "80px" }}>
+      <section className="py-16 lg:py-24 px-4 sm:px-6" style={{ ...sectionBase, paddingTop: "140px", paddingBottom: "80px" }}>
         <div style={container}>
           {/* Badge */}
           <motion.div
@@ -330,14 +330,7 @@ export default function OutboundMachineLanding() {
             </span>
           </motion.div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "64px",
-              alignItems: "center",
-            }}
-          >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
@@ -346,7 +339,7 @@ export default function OutboundMachineLanding() {
             >
               <h1
                 style={{
-                  fontSize: "clamp(40px, 5vw, 64px)",
+                  fontSize: "clamp(32px, 6vw, 64px)",
                   fontWeight: 800,
                   lineHeight: 1.05,
                   marginBottom: "24px",
@@ -427,13 +420,8 @@ export default function OutboundMachineLanding() {
 
               {/* Trust signals */}
               <div
-                style={{
-                  display: "flex",
-                  gap: "32px",
-                  marginTop: "48px",
-                  paddingTop: "32px",
-                  borderTop: `1px solid ${border}`,
-                }}
+                className="flex flex-wrap gap-6 sm:gap-8 mt-12 pt-8"
+                style={{ borderTop: `1px solid ${border}` }}
               >
                 {[
                   { n: "21%+", l: "taxa de resposta" },
@@ -463,7 +451,7 @@ export default function OutboundMachineLanding() {
       {/* ══════════════════════════════════════
           PROBLEMA
       ══════════════════════════════════════ */}
-      <section id="problema" style={{ ...sectionBase, background: surface }}>
+      <section className="py-16 lg:py-24 px-4 sm:px-6" id="problema" style={{ ...sectionBase, background: surface }}>
         <div style={container}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -568,7 +556,7 @@ export default function OutboundMachineLanding() {
       {/* ══════════════════════════════════════
           SISTEMA / COMO FUNCIONA
       ══════════════════════════════════════ */}
-      <section id="sistema" style={{ ...sectionBase }}>
+      <section className="py-16 lg:py-24 px-4 sm:px-6" id="sistema" style={{ ...sectionBase }}>
         <div style={container}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -615,10 +603,9 @@ export default function OutboundMachineLanding() {
                   cursor: "pointer",
                   transition: "all 0.2s",
                   display: "grid",
-                  gridTemplateColumns: "80px 1fr auto",
-                  gap: "24px",
                   alignItems: "center",
                 }}
+                className="grid-cols-[60px_1fr_20px] md:grid-cols-[80px_1fr_auto] gap-4 md:gap-6"
                 onMouseOver={e => {
                   if (activeStep !== i) {
                     (e.currentTarget as HTMLElement).style.borderColor = gold + "20";
@@ -704,10 +691,10 @@ export default function OutboundMachineLanding() {
               borderRadius: "12px",
               padding: "32px 36px",
               display: "grid",
-              gridTemplateColumns: "1fr 1fr",
               gap: "32px",
               alignItems: "center",
             }}
+            className="grid-cols-1 md:grid-cols-2"
           >
             <div>
               <div
@@ -732,9 +719,9 @@ export default function OutboundMachineLanding() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr",
                 gap: "8px",
               }}
+              className="grid-cols-2 sm:grid-cols-3 lg:grid-cols-2"
             >
               {["BANT", "SPIN Selling", "Cialdini", "Chris Voss", "Kahneman", "Reciprocidade"].map(tag => (
                 <div
@@ -760,7 +747,7 @@ export default function OutboundMachineLanding() {
       {/* ══════════════════════════════════════
           O ESCOPO (REDESIGN PREMIUM)
       ══════════════════════════════════════ */}
-      <section id="escopo" style={{ ...sectionBase, position: "relative" }}>
+      <section className="py-16 lg:py-24 px-4 sm:px-6" id="escopo" style={{ ...sectionBase, position: "relative" }}>
         {/* Decorative background glow */}
         <div style={{
           position: "absolute",
@@ -907,7 +894,7 @@ export default function OutboundMachineLanding() {
       {/* ══════════════════════════════════════
           CASE REAL
       ══════════════════════════════════════ */}
-      <section id="case" style={{ ...sectionBase, background: surface }}>
+      <section className="py-16 lg:py-24 px-4 sm:px-6" id="case" style={{ ...sectionBase, background: surface }}>
         <div style={container}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -949,13 +936,13 @@ export default function OutboundMachineLanding() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
               gap: "2px",
               background: border,
               borderRadius: "12px",
               overflow: "hidden",
               marginBottom: "2px",
             }}
+            className="grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
           >
             {metrics.slice(0, 3).map((m, i) => (
               <motion.div
@@ -1001,12 +988,12 @@ export default function OutboundMachineLanding() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
               gap: "2px",
               background: border,
               borderRadius: "12px",
               overflow: "hidden",
             }}
+            className="grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
           >
             {metrics.slice(3).map((m, i) => (
               <motion.div
@@ -1076,7 +1063,7 @@ export default function OutboundMachineLanding() {
       {/* ══════════════════════════════════════
           SEGMENTOS
       ══════════════════════════════════════ */}
-      <section style={{ ...sectionBase }}>
+      <section className="py-16 lg:py-24 px-4 sm:px-6" style={{ ...sectionBase }}>
         <div style={container}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -1161,7 +1148,7 @@ export default function OutboundMachineLanding() {
       {/* ══════════════════════════════════════
           IMPLEMENTAÇÃO
       ══════════════════════════════════════ */}
-      <section id="implementacao" style={{ ...sectionBase, background: surface }}>
+      <section className="py-16 lg:py-24 px-4 sm:px-6" id="implementacao" style={{ ...sectionBase, background: surface }}>
         <div style={container}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -1212,10 +1199,10 @@ export default function OutboundMachineLanding() {
                   transition={{ delay: i * 0.12 }}
                   style={{
                     display: "flex",
-                    gap: "32px",
                     alignItems: "flex-start",
                     padding: "24px 0",
                   }}
+                  className="gap-4 md:gap-8 flex-row"
                 >
                   {/* Dot */}
                   <div
@@ -1273,7 +1260,7 @@ export default function OutboundMachineLanding() {
       {/* ══════════════════════════════════════
           CTA
       ══════════════════════════════════════ */}
-      <section id="cta" style={{ ...sectionBase }}>
+      <section className="py-16 lg:py-24 px-4 sm:px-6" id="cta" style={{ ...sectionBase }}>
         <div style={{ ...container, textAlign: "center" }}>
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -1285,10 +1272,10 @@ export default function OutboundMachineLanding() {
                 background: surface,
                 border: `1px solid ${border}`,
                 borderRadius: "20px",
-                padding: "80px 60px",
                 position: "relative",
                 overflow: "hidden",
               }}
+              className="py-12 px-6 sm:py-16 sm:px-12 md:py-20 md:px-16"
             >
               {/* Background glow */}
               <div
